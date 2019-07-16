@@ -6,7 +6,7 @@
 
 Данный класс служит мостом ко всем остальным модулям DN. Он наследуется от **php\gui\framework\Application** и напрямую связан с UI. При запуске инициализируется логгер и перехватчик исключений.
 
-![ExceptionHandler](exception_handler.png)
+![ExceptionHandler](https://raw.githubusercontent.com/broelik/dn_inside/master/images/exception_handler.png)
 
 Затем проверяются аргументы командной строки. Если первый аргумент начинается с *develnext://*, то проверка осуществляется при помощи протоколов зарегистрированных в файле *.dn/protocolHandlers*, в ином случае аргумент воспринимается как файл *.dnproject* или *.zip* архив.
 
@@ -50,7 +50,7 @@ ide\Ide::get()->registerExtension(string|AbstractExtension);
 
 Здесь нужно сделать оговорку. Речь идёт о различных полях для редактирования объектов в редакторе(строковые редакторы, числовые редакторы, редактор шрифтов и т.д.).
 
-![Пример](property_values_editor.png)
+![Пример](https://raw.githubusercontent.com/broelik/dn_inside/master/images/property_values_editor.png)
 
 Такие компоненты наследуются от класса **ide\editors\value\ElementPropertyEditor**, а зарегистрировать их можно при помощи:
 
@@ -73,4 +73,3 @@ ide\editors\value\ElementPropertyEditor::register(ElementPropertyEditor)
 
 
 Продолжение следует...
-
