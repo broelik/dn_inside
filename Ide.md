@@ -24,11 +24,11 @@
 
 Базовым классом для всех расширения является **ide\AbstractExtension**. Этот класс имеет следующие методы:
 
-* ```onIdeStart()``` - вызывается при запуске DN
+* ```onIdeStart(): void``` - вызывается при запуске DN
 
-* ```onIdeShutdown()``` - вызывается при завершении работы DN
-* ```onRegister()``` - вызывается при регистрации расширения
-* ```getDependencies()``` - список зависимостей для расширения
+* ```onIdeShutdown(): void``` - вызывается при завершении работы DN
+* ```onRegister(): void``` - вызывается при регистрации расширения
+* ```getDependencies(): array``` - список зависимостей для расширения
 
 Первым вызывается метод ```getDependencies()``` для того, чтобы зарегистрировать зависимости, перед регистрацией самого расширения. Затем следует вызов ```onRegister()``` а метод ```onIdeStart()``` вызывается после того как зарегистрированы все компоненты.
 
@@ -37,7 +37,7 @@
 Зарегистрировать расширение можно при помощи:
 
 ```php
-ide\Ide::get()->registerExtension(string|AbstractExtension);
+ide\Ide::get()->registerExtension(string|AbstractExtension $ext): void;
 ```
 
 передав туда имя класса или экземпляр класса **ide\AbstractExtension**.
@@ -55,7 +55,7 @@ ide\Ide::get()->registerExtension(string|AbstractExtension);
 Такие компоненты наследуются от класса **ide\editors\value\ElementPropertyEditor**, а зарегистрировать их можно при помощи:
 
 ```php
-ide\editors\value\ElementPropertyEditor::register(ElementPropertyEditor)
+ide\editors\value\ElementPropertyEditor::register(ElementPropertyEditor $element): void;
 ```
 
 передав туда экземпляр соответствующего класса.
@@ -66,10 +66,38 @@ ide\editors\value\ElementPropertyEditor::register(ElementPropertyEditor)
 
 ## Форматы
 
-Форматы служат для добавления различных редакторов(редактора кода, редактора модулей, редактора UI и т.д.).
+Форматы служат для добавления новых редакторов и различных панелей управления. 
 
+Все форматы наследуются от **ide\formatsAbstractFormat**. Данный класс содержит следующие методы:
 
+* ```getIcon(): ?mixed``` - возвращает иконку формата
+* ```getTitle(string $path): string``` - возвращает отображаемое имя для файла, который относится к данному формату.
+* ```protected requireFormat(AbstractFormat $format): ?mixed``` - добавляет формат, который необходим для работы текущего формата
+* ```delete(string $name, bool $silent): void``` - удалить файл, который относится к данному формату
+* ```duplicate(string $path, string $destPath): void``` -  клонировать файл, который относится к данному формату
+* ```abstract createEditor(string $path, array $options): ide\editors\AbstractEditor``` - создать редактор для файла, который относится к данному формату
+* ```createBlank(ide\project\Project $project, $file, array $options): ProjectFile``` - создать пустой файл, который будет относиться к данному формату.
+* ```availableCreateDialog(): bool``` - данный метод должен возвращать true, если для создания файла для данного формата, необходимо показать дополнительный диалог с настройками.
+* ```showCreateDialog(): ?string``` - показать диалог с необходимыми настройками.
+* ```isValid($file): bool``` - метод должен возвращать true, если данный формат способен обработать **$file**.
+* ```createBlankCommand(): ?AbstractCommand``` - ???
+* ```createCreator(): null``` - ???
+* ```register($any): mixed``` - ???
 
+Давайте разберёмся подробнее с этими методами.
 
+```getIcon()``` и ```getTitle()``` вызываются при необходимости отобразить информация о файле, который принадлежит данному формату. Хорошим(и возможно единственным) примером, может послужить дерево проекта.
 
-Продолжение следует...
+![FileTree](https://raw.githubusercontent.com/broelik/dn_inside/master/images/tree_format_example.png)
+
+```delete()``` вызывается при удалении файла(например, всё из того же дерева проекта).
+
+```duplicate()``` позволяет клонировать файл. Например, данный метод используется для клонирования форм и скриптов в GUI проекте.
+
+```createBlank()```  вызывается для создания пустого файла, для данного формата. WizardFramework оказался единственным местом, в котором используется данный метод. По сути - это некий шаблонизатор(наверное).
+
+```createBlankCommand()``` использование данного метода, также как метода ```createBlank```, замечено только в WizardFramework, так что описание отсутствует. 
+
+```createEditor()``` - вызывается для создания редактора. О редакторах позже. 
+
+```availableCreateDialog()``` и ```showCreateDialog()``` служат для дополнительного ввода данных при создании файла для формата. Например, для создания модуля или формы.
